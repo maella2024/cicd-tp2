@@ -38,8 +38,8 @@ jobs:
       #  Vérifier que le dossier tests/generated existe
       - name: Check tests folder
         run: |
-          if not exist "tests\generated" mkdir tests\generated
-          type nul > tests\generated\__init__.py
+          if not exist "tests/generated" mkdir tests/generated
+          type nul > tests/generated/__init__.py
 
       #  Linter Python (optionnel)
       - name: Lint Python
@@ -47,7 +47,7 @@ jobs:
           pip install flake8
           flake8 src tests
 
-      # ⃣ Lancer les tests pytest
+      # Lancer les tests pytest
       - name: Run tests
         run: |
           pytest tests/generated --maxfail=1 --disable-warnings -v
