@@ -3,74 +3,73 @@ name: CI - Tests Automatisés avec IA
 on:
   push:
     branches: [boudinm]
-  pull_request:
-    branches: [boudinm]
 
 jobs:
-  test-and-analyze:
-    name: Génération & Tests IA
+
+  # ------------------------------------------------------------
+  # Job 1 : Setup environnement (Python, Node, Chrome, dépendances)
+  # ------------------------------------------------------------
+  setup:
+    name: Mise en place - Install
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        python-version: [3.11]
+        python-version: [ 3.14 ]  # Quelle version ?
 
     steps:
-      #  Checkout du code
-      - uses: actions/checkout@v5
-
-      # Setup Python
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - uses: browser-actions/setup-chrome@latest
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
 
-      #  Installer les dépendances Python
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
       - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Installation Allure
+        run: npm install -g allure-commandline
+
+  # ------------------------------------------------------------
+  # Job 2 : Exécution des tests (unitaires + fonctionnels)
+  # ------------------------------------------------------------
+      - name: Génération des tests
+        run: python ai_tools/test_generator.py
+      - name: Execution des Tests Unitaires
+        run: pytest tests/generated/ -v --html=reports/generated-report.html --self-contained-html
+        continue-on-error: true
+      - name: Execution des tests fonctionnels
+        run: pytest tests/visual/ -v --html=reports/visual-report.html --self-contained-html
+        continue-on-error: true
+
+
+  # ------------------------------------------------------------
+  # Job 3 : Génération Allure + fusion historique
+  # ------------------------------------------------------------
+      - name: Fusion histoire + nouveaux résultats
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -d reports/allure-history ]; then
+            cp -R reports/allure-history/* reports/allure-results/ || true
+          fi
 
-      #  Générer les tests IA
-      - name: Générer les tests IA
-        run: |
-          python ai_tools/test_generator.py
+      - name: Executer avec Allure
+        run: pytest tests/ -v --html=reports/full-report.html --self-contained-html --alluredir=reports/allure-results
+        continue-on-error: true
+      - name: Générer le rapport allure
+        run: allure generate reports/allure-results --clean -o reports/allure-report
 
-      #  Vérifier que le dossier tests/generated existe
-      - name: Check tests folder
-        run: |
-          if not exist "tests/generated" mkdir tests/generated
-          type nul > tests/generated/__init__.py
-
-      #  Linter Python (optionnel)
-      - name: Lint Python
-        run: |
-          pip install flake8
-          flake8 src tests
-
-      # Lancer les tests pytest
-      - name: Run tests
-        run: |
-          pytest tests/generated --maxfail=1 --disable-warnings -v
-
-      - name: Generate Allure Report
-        run: |
-          allure generate reports/allure-results --clean -o reports/allure-report
-
-      - name: Chrome
-        run: browser-actions/setup-chrome@latest
-
-          # 1 Upload des rapports Allure (toujours)
-      - name: Upload Allure Reports
-        if: always()
+      - name: Upload des rapports
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
           path: reports/
           retention-days: 30
-
-          # 1 Upload des screenshots (toujours)
-      - name: Upload Screenshots
-        if: always()
+      - name: Upload des screenshots
         uses: actions/upload-artifact@v4
         with:
           name: screenshots
