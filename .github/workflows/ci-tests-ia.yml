@@ -9,7 +9,7 @@ on:
 jobs:
   test-and-analyze:
     name: Génération & Tests IA
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.11]
