@@ -1,0 +1,9 @@
+pytest
+pytest-html
+selenium
+pillow
+pandas
+scikit-learn
+matplotlib
+allure-pytest
+webdriver-manager
