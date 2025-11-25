@@ -2,9 +2,9 @@ name: CI - Tests Automatisés avec IA
 
 on:
   push:
-    branches: [main]   # Branche principale
+    branches: [boudinm]
   pull_request:
-    branches: [main]
+    branches: [boudinm]
 
 jobs:
   test-and-analyze:
