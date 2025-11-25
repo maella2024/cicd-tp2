@@ -168,9 +168,9 @@ class TestCalculatorGenerated:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(content)
 
-        print(f"✅ Tests générés avec succès: {output_path}")
-        print(f"📊 Nombre de sections: {len(self.specs)}")
-        print(f"📊 Nombre total de tests: {sum(len(scenarios) for scenarios in self.specs.values())}")
+        print(f" Tests générés avec succès: {output_path}")
+        print(f" Nombre de sections: {len(self.specs)}")
+        print(f" Nombre total de tests: {sum(len(scenarios) for scenarios in self.specs.values())}")
 
 
 def main():

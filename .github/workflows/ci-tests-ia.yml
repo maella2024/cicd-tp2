@@ -15,39 +15,39 @@ jobs:
         python-version: [3.11]
 
     steps:
-      # 1️⃣ Checkout du code
+      #  Checkout du code
       - uses: actions/checkout@v5
 
-      # 2️⃣ Setup Python
+      # Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      # 3️⃣ Installer les dépendances Python
+      #  Installer les dépendances Python
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4️⃣ Générer les tests IA
+      #  Générer les tests IA
       - name: Générer les tests IA
         run: |
           python ai_tools/test_generator.py
 
-      # 5️⃣ Vérifier que le dossier tests/generated existe
+      #  Vérifier que le dossier tests/generated existe
       - name: Check tests folder
         run: |
           if not exist "tests\generated" mkdir tests\generated
           type nul > tests\generated\__init__.py
 
-      # 6️⃣ Linter Python (optionnel)
+      #  Linter Python (optionnel)
       - name: Lint Python
         run: |
           pip install flake8
           flake8 src tests
 
-      # 7️⃣ Lancer les tests pytest
+      # ⃣ Lancer les tests pytest
       - name: Run tests
         run: |
           pytest tests/generated --maxfail=1 --disable-warnings -v
@@ -59,7 +59,7 @@ jobs:
       - name: Chrome
         run: browser-actions/setup-chrome@latest
 
-          # 🔥 10️⃣ Upload des rapports Allure (toujours)
+          # 1 Upload des rapports Allure (toujours)
       - name: Upload Allure Reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -68,7 +68,7 @@ jobs:
           path: reports/
           retention-days: 30
 
-          # 🔥 11️⃣ Upload des screenshots (toujours)
+          # 1 Upload des screenshots (toujours)
       - name: Upload Screenshots
         if: always()
         uses: actions/upload-artifact@v4
